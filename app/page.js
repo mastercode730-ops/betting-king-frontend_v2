@@ -105,8 +105,8 @@ export default function HomePage() {
           <div className="brand">
             <div className="brand-icon" aria-hidden="true">♚</div>
             <div>
-              <div className="brand-name">SATTA KING FAST</div>
-              <div className="brand-sub">SUPERFAST LIVE RESULTS &amp; CHARTS</div>
+              <div className="brand-name">SATTA KING PRO</div>
+              <div className="brand-sub">PROFESSIONAL LIVE RESULTS &amp; CHARTS</div>
             </div>
           </div>
           <div className="header-search">
@@ -132,7 +132,7 @@ export default function HomePage() {
 
         <div className="seo-strip" role="note">
           <h1 style={{ fontSize: 'inherit', fontWeight: 400, display: 'inline' }}>
-            Daily Superfast Satta King Result 2026 — Live Leak Numbers for Gali, Desawar, Ghaziabad &amp; Faridabad with Complete Monthly Chart Archive.
+            Satta King Pro — Daily Superfast Result 2026. Live Leak Numbers for Gali, Desawar, Ghaziabad &amp; Faridabad with Complete Monthly Chart Archive.
           </h1>
         </div>
 

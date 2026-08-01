@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Satta King Fast — Live Superfast Results 2026 | Gali Desawar Chart',
-  description: 'Superfast Live Satta King Result 2026. Realtime Gali, Desawar, Ghaziabad, Faridabad draws with full monthly chart archive.',
+  title: 'Satta King Pro — Live Superfast Results 2026 | Gali Desawar Chart',
+  description: 'Superfast Live Satta King Pro Result 2026. Realtime Gali, Desawar, Ghaziabad, Faridabad draws with full monthly chart archive. Fastest satta results online.',
   icons: {
     icon: [
       { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
