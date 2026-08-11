@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { STATIC_GAMES, getMockGameAnnualChart, WHATSAPP_URL, WHATSAPP_NUMBER } from '../../../../lib/mockData';
+import { WHATSAPP_URL, WHATSAPP_NUMBER } from '../../../../lib/constants';
 
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -13,33 +13,24 @@ export default function GameChartPage() {
 
   const currentYear = new Date().getFullYear();
   const [year, setYear]           = useState(String(currentYear));
-  const [gameData, setGameData]   = useState(() => STATIC_GAMES.find(g => g.code === gameCode) || { name: gameCode, draw_time: '08:00 PM' });
-  const [monthlyData, setMonthly] = useState(() => getMockGameAnnualChart(gameCode, String(currentYear)).monthly_data);
-  const [todayResults, setToday]  = useState(STATIC_GAMES);
-  const [todayDate, setTDate]     = useState(() => new Date().toISOString().split('T')[0]);
-  const [yesterdayDate, setYDate] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    return d.toISOString().split('T')[0];
-  });
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState(null);
+  const [gameData, setGameData]   = useState(null);
+  const [monthlyData, setMonthly] = useState({});
+  const [todayResults, setToday]  = useState([]);
+  const [todayDate, setTDate]     = useState('');
+  const [yesterdayDate, setYDate] = useState('');
+  const [loading, setLoading]     = useState(true);
 
   const loadGameChart = useCallback(async (yr) => {
     try {
       setLoading(true);
       const res = await fetch(`/api/chart/game/${gameCode}?year=${yr}`);
-      if (!res.ok) throw new Error('Failed to fetch game chart');
       const json = await res.json();
       if (json.success && json.monthly_data) {
-        setGameData(json.game || STATIC_GAMES.find(g => g.code === gameCode) || { name: gameCode, draw_time: '08:00 PM' });
+        setGameData(json.game || { name: gameCode, code: gameCode });
         setMonthly(json.monthly_data);
-        return;
       }
     } catch (e) {
-      const mock = getMockGameAnnualChart(gameCode, yr);
-      setGameData(mock.game);
-      setMonthly(mock.monthly_data);
+      console.warn('[SK] Failed to fetch game chart:', e.message);
     } finally {
       setLoading(false);
     }
@@ -48,15 +39,14 @@ export default function GameChartPage() {
   const loadToday = useCallback(async () => {
     try {
       const res = await fetch('/api/results/today');
-      if (!res.ok) throw new Error('API error');
       const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      if (json.success && Array.isArray(json.data)) {
         setToday(json.data);
         if (json.today_date) setTDate(json.today_date);
         if (json.yesterday_date) setYDate(json.yesterday_date);
       }
     } catch (e) {
-      // Static fallback
+      console.warn('[SK] Failed to fetch today results:', e.message);
     }
   }, []);
 
@@ -64,10 +54,10 @@ export default function GameChartPage() {
   useEffect(() => { loadToday(); const id = setInterval(loadToday, 15000); return () => clearInterval(id); }, [loadToday]);
 
   const years = [2026, 2025, 2024, 2023, 2022];
-  const thisGame = todayResults.find(g => g.code === gameCode);
+  const thisGame = todayResults.find(g => g.code === gameCode) || gameData;
 
   const SpinnerIcon = () => (
-    <span className="wait-spinner" title="रिजल्ट का इंतज़ार">
+    <span className="wait-spinner" title="लाइव रिजल्ट का इंतज़ार">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
         <circle cx="12" cy="12" r="9.5" />
         <line className="clock-hand" x1="12" y1="12" x2="12" y2="6.5" />
@@ -82,7 +72,7 @@ export default function GameChartPage() {
           <div className="kicker">दैनिक सट्टा समाचार &bull; विशेष वार्षिक अंक</div>
           <h1>{gameData?.name || gameCode} रिकॉर्ड चार्ट {year}</h1>
           <div className="dateline">
-            <span>समय: {gameData?.draw_time}</span>
+            <span>समय: {gameData?.draw_time || '—'}</span>
             <span>कोड: {gameCode}</span>
             <span>वार्षिक अंक: {year}</span>
           </div>
@@ -114,19 +104,19 @@ export default function GameChartPage() {
         {thisGame && (
           <div className="figure" style={{ marginTop: 18 }}>
             <span className="big">
-              {thisGame.today_number === 'XX' || thisGame.today_number === '--' ? <SpinnerIcon /> : thisGame.today_number}
+              {!thisGame.today_number || thisGame.today_number === 'XX' || thisGame.today_number === '--' ? <SpinnerIcon /> : thisGame.today_number}
             </span>
             <div className="meta">
               <span>आज का नंबर (TODAY)</span>
-              <b>{thisGame.today_number}</b>
+              <b>{thisGame.today_number || '—'}</b>
             </div>
             <div className="meta">
               <span>कल का नंबर (YEST)</span>
-              <b>{thisGame.yesterday_number}</b>
+              <b>{thisGame.yesterday_number || '—'}</b>
             </div>
             <div className="meta">
               <span>रिजल्ट समय</span>
-              <b>{thisGame.draw_time}</b>
+              <b>{thisGame.draw_time || '—'}</b>
             </div>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-wa-paper" style={{ marginLeft: 'auto' }}>
               💬 खाईवाल बुकिंग
@@ -175,15 +165,11 @@ export default function GameChartPage() {
                         <td><b>{dPad}</b></td>
                         {Array.from({ length: 12 }, (_, m) => {
                           const mPad = String(m + 1).padStart(2, '0');
-                          const num = monthlyData?.[mPad]?.[dPad] || 'XX';
+                          const num = monthlyData?.[mPad]?.[dPad];
                           const hasNum = num && num !== 'XX' && num !== '--';
                           return (
                             <td key={mPad} className={hasNum ? 'has-num' : ''}>
-                              {num === 'XX' && year === String(currentYear) && m === new Date().getMonth() + 1 && i + 1 === new Date().getDate() ? (
-                                <SpinnerIcon />
-                              ) : (
-                                num
-                              )}
+                              {num === 'XX' ? <SpinnerIcon /> : (num || '—')}
                             </td>
                           );
                         })}
@@ -215,7 +201,7 @@ export default function GameChartPage() {
               </thead>
               <tbody>
                 {todayResults.map((g) => {
-                  const isPending = g.today_number === 'XX' || g.today_number === '--';
+                  const isPending = !g.today_number || g.today_number === 'XX' || g.today_number === '--';
                   const chartHref = `/${g.slug || g.code.toLowerCase()}/satta-result-chart/${g.code.toLowerCase()}/`;
 
                   return (
@@ -224,7 +210,7 @@ export default function GameChartPage() {
                         <div className="g-name">{g.name}</div>
                         <div className="g-time">⏰ {g.draw_time}</div>
                       </td>
-                      <td className="n">{g.yesterday_number}</td>
+                      <td className="n">{g.yesterday_number || '—'}</td>
                       <td className={`n ${isPending ? 'pending' : 'today'}`}>
                         {isPending ? <SpinnerIcon /> : g.today_number}
                       </td>

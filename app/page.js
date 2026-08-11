@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { STATIC_GAMES, getMockMonthlyChart, WHATSAPP_URL, WHATSAPP_NUMBER } from '../lib/mockData';
+import { WHATSAPP_URL, WHATSAPP_NUMBER } from '../lib/constants';
 
 const MONTH_NAMES = [
   'January','February','March','April','May','June',
@@ -11,32 +11,30 @@ const MONTH_NAMES = [
 const REFRESH_MS = 15_000;
 
 export default function HomePage() {
-  const [games, setGames]           = useState(STATIC_GAMES);
-  const [todayDate, setTodayDate]   = useState(() => new Date().toISOString().split('T')[0]);
-  const [yesterdayDate, setYDate]   = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 1);
-    return d.toISOString().split('T')[0];
-  });
+  const [games, setGames]           = useState([]);
+  const [todayDate, setTodayDate]   = useState('');
+  const [yesterdayDate, setYDate]   = useState('');
   const [searchQ, setSearchQ]       = useState('');
+  const [syncing, setSyncing]       = useState(false);
   const [chartMonth, setChartMonth] = useState(() => String(new Date().getMonth() + 1).padStart(2, '0'));
   const [chartYear, setChartYear]   = useState(() => String(new Date().getFullYear()));
-  const [chartData, setChartData]   = useState(() => getMockMonthlyChart(String(new Date().getMonth() + 1).padStart(2, '0'), String(new Date().getFullYear())));
+  const [chartData, setChartData]   = useState(null);
 
-  // Fetch today results with fallback
+  // Fetch today results from backend API
   const loadResults = useCallback(async () => {
     try {
+      setSyncing(true);
       const res = await fetch('/api/results/today');
-      if (!res.ok) throw new Error('API fetch failed');
       const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      if (json.success && Array.isArray(json.data)) {
         setGames(json.data);
         if (json.today_date) setTodayDate(json.today_date);
         if (json.yesterday_date) setYDate(json.yesterday_date);
       }
     } catch (e) {
-      // Graceful static fallback
-      console.warn('[SK] Using static data fallback:', e.message);
+      console.warn('[SK] API fetch error:', e.message);
+    } finally {
+      setTimeout(() => setSyncing(false), 800);
     }
   }, []);
 
@@ -46,20 +44,17 @@ export default function HomePage() {
     return () => clearInterval(id);
   }, [loadResults]);
 
-  // Load monthly chart with fallback
+  // Load monthly chart from backend API
   const loadChart = useCallback(async (month, year) => {
     try {
       const res = await fetch(`/api/chart/monthly?month=${month}&year=${year}`);
-      if (!res.ok) throw new Error('Chart API failed');
       const json = await res.json();
       if (json.success && json.rows) {
         setChartData(json);
-        return;
       }
     } catch (e) {
-      // Fallback
+      console.warn('[SK] Chart API error:', e.message);
     }
-    setChartData(getMockMonthlyChart(month, year));
   }, []);
 
   useEffect(() => {
@@ -92,8 +87,8 @@ export default function HomePage() {
 
   // Spinner Icon component
   const SpinnerIcon = () => (
-    <span className="wait-spinner" title="रिजल्ट का इंतज़ार">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+    <span className="wait-spinner" title="लाइव रिजल्ट का इंतज़ार">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
         <circle cx="12" cy="12" r="9.5" />
         <line className="clock-hand" x1="12" y1="12" x2="12" y2="6.5" />
       </svg>
@@ -109,7 +104,7 @@ export default function HomePage() {
           <span className="lrs-game">{leadGame.name}</span>
           <span className="lrs-time">({leadGame.draw_time})</span>
           <span className="lrs-arrow">&#10148;</span>
-          <span className="lrs-num">{leadGame.today_number === 'XX' || leadGame.today_number === '--' ? '??' : leadGame.today_number}</span>
+          <span className="lrs-num">{!leadGame.today_number || leadGame.today_number === 'XX' || leadGame.today_number === '--' ? '??' : leadGame.today_number}</span>
           <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-wa-paper" style={{ padding: '2px 10px', fontSize: '11px', marginLeft: 8 }}>
             💬 WhatsApp
           </a>
@@ -125,7 +120,10 @@ export default function HomePage() {
             <span>{fmtHindiDate(todayDate || new Date())}</span>
             <span>मूल्य: नि:शुल्क</span>
             <span>अंक: 2026-LIVE</span>
-            <span>संपादकीय कार्यालय: दिल्ली</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span className="lrs-dot" style={{ background: syncing ? '#b45309' : '#1c7a45' }} />
+              {syncing ? 'लाइव सिंक...' : 'लाइव अपडेट (15s)'}
+            </span>
           </div>
         </header>
 
@@ -170,12 +168,12 @@ export default function HomePage() {
         <section className="lead">
           <div className="lead-main">
             <span className="lead-tag">ताज़ा खबर &bull; HEADLINE</span>
-            <h2>{leadGame?.name || 'FARIDABAD'} का आज का रिजल्ट घोषित</h2>
+            <h2>{leadGame?.name || 'LIVE'} का आज का रिजल्ट घोषित</h2>
             <p className="byline">हाँ भाई, सबसे पहले खबर यहीं आती है &mdash; निज विशेष संवाददाता</p>
 
             <div className="figure">
               <span className="big">
-                {leadGame?.today_number === 'XX' || leadGame?.today_number === '--' ? <SpinnerIcon /> : leadGame?.today_number}
+                {!leadGame?.today_number || leadGame?.today_number === 'XX' || leadGame?.today_number === '--' ? <SpinnerIcon /> : leadGame?.today_number}
               </span>
               <div className="meta">
                 <span>कल का नंबर</span>
@@ -234,7 +232,7 @@ export default function HomePage() {
               </thead>
               <tbody>
                 {filtered.map((g) => {
-                  const isPending = g.today_number === 'XX' || g.today_number === '--';
+                  const isPending = !g.today_number || g.today_number === 'XX' || g.today_number === '--';
                   const chartHref = `/${g.slug || g.code.toLowerCase()}/satta-result-chart/${g.code.toLowerCase()}/`;
 
                   return (
@@ -243,7 +241,7 @@ export default function HomePage() {
                         <div className="g-name">{g.name}</div>
                         <div className="g-time">⏰ {g.draw_time}</div>
                       </td>
-                      <td className="n">{g.yesterday_number}</td>
+                      <td className="n">{g.yesterday_number || '—'}</td>
                       <td className={`n ${isPending ? 'pending' : 'today'}`}>
                         {isPending ? <SpinnerIcon /> : g.today_number}
                       </td>
@@ -288,10 +286,10 @@ export default function HomePage() {
                   return (
                     <tr key={r.day} className={isToday ? 'today-row' : ''}>
                       <td><b>{r.day}</b></td>
-                      <td className={hasNum(r.DS) ? 'has-num' : ''}>{r.DS === 'XX' && isToday ? <SpinnerIcon /> : r.DS}</td>
-                      <td className={hasNum(r.FB) ? 'has-num' : ''}>{r.FB === 'XX' && isToday ? <SpinnerIcon /> : r.FB}</td>
-                      <td className={hasNum(r.GB) ? 'has-num' : ''}>{r.GB === 'XX' && isToday ? <SpinnerIcon /> : r.GB}</td>
-                      <td className={hasNum(r.GL) ? 'has-num' : ''}>{r.GL === 'XX' && isToday ? <SpinnerIcon /> : r.GL}</td>
+                      <td className={hasNum(r.DS) ? 'has-num' : ''}>{r.DS === 'XX' && isToday ? <SpinnerIcon /> : (r.DS || '—')}</td>
+                      <td className={hasNum(r.FB) ? 'has-num' : ''}>{r.FB === 'XX' && isToday ? <SpinnerIcon /> : (r.FB || '—')}</td>
+                      <td className={hasNum(r.GB) ? 'has-num' : ''}>{r.GB === 'XX' && isToday ? <SpinnerIcon /> : (r.GB || '—')}</td>
+                      <td className={hasNum(r.GL) ? 'has-num' : ''}>{r.GL === 'XX' && isToday ? <SpinnerIcon /> : (r.GL || '—')}</td>
                     </tr>
                   );
                 })}
