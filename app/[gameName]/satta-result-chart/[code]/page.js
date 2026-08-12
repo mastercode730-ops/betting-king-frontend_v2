@@ -72,9 +72,11 @@ export default function GameChartPage() {
           <div className="kicker">दैनिक सट्टा समाचार &bull; विशेष वार्षिक अंक</div>
           <h1>{gameData?.name || gameCode} रिकॉर्ड चार्ट {year}</h1>
           <div className="dateline">
-            <span>समय: {gameData?.draw_time || '—'}</span>
-            <span>कोड: {gameCode}</span>
-            <span>वार्षिक अंक: {year}</span>
+            <span className="dateline-item">समय: {gameData?.draw_time || '—'}</span>
+            <span className="dateline-sep">&bull;</span>
+            <span className="dateline-item">कोड: {gameCode}</span>
+            <span className="dateline-sep">&bull;</span>
+            <span className="dateline-item">वार्षिक अंक: {year}</span>
           </div>
         </header>
 
@@ -106,17 +108,19 @@ export default function GameChartPage() {
             <span className="big">
               {!thisGame.today_number || thisGame.today_number === 'XX' || thisGame.today_number === '--' ? <SpinnerIcon /> : thisGame.today_number}
             </span>
-            <div className="meta">
-              <span>आज का नंबर (TODAY)</span>
-              <b>{thisGame.today_number || '—'}</b>
-            </div>
-            <div className="meta">
-              <span>कल का नंबर (YEST)</span>
-              <b>{thisGame.yesterday_number || '—'}</b>
-            </div>
-            <div className="meta">
-              <span>रिजल्ट समय</span>
-              <b>{thisGame.draw_time || '—'}</b>
+            <div className="meta-group">
+              <div className="meta">
+                <span>आज का नंबर (TODAY)</span>
+                <b>{thisGame.today_number || '—'}</b>
+              </div>
+              <div className="meta">
+                <span>कल का नंबर (YEST)</span>
+                <b>{thisGame.yesterday_number || '—'}</b>
+              </div>
+              <div className="meta">
+                <span>रिजल्ट समय</span>
+                <b>{thisGame.draw_time || '—'}</b>
+              </div>
             </div>
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-wa-paper" style={{ marginLeft: 'auto' }}>
               💬 खाईवाल बुकिंग
@@ -144,13 +148,14 @@ export default function GameChartPage() {
             <span className="rule" />
           </div>
 
+          <div className="scroll-hint">👈 बाएँ-दाएँ स्क्रॉल करें (12 महीने) 👉</div>
           <div className="tbl-wrap">
             {loading ? (
               <div style={{ padding: 40, textAlign: 'center', color: 'var(--dim)' }}>
                 <SpinnerIcon /> [ डेटा लोड हो रहा है... ]
               </div>
             ) : (
-              <table className="archive-ledger" aria-label="Annual Game Chart">
+              <table className="archive-ledger sticky-col" aria-label="Annual Game Chart" style={{ minWidth: 640 }}>
                 <thead>
                   <tr>
                     <th style={{ width: 60 }}>तारीख</th>

@@ -117,10 +117,13 @@ export default function HomePage() {
           <div className="kicker">दैनिक सट्टा समाचार — DAILY GAZETTE</div>
           <h1>SATTA KING PRO</h1>
           <div className="dateline">
-            <span>{fmtHindiDate(todayDate || new Date())}</span>
-            <span>मूल्य: नि:शुल्क</span>
-            <span>अंक: 2026-LIVE</span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span className="dateline-item">{fmtHindiDate(todayDate || new Date())}</span>
+            <span className="dateline-sep">&bull;</span>
+            <span className="dateline-item">मूल्य: नि:शुल्क</span>
+            <span className="dateline-sep">&bull;</span>
+            <span className="dateline-item">अंक: 2026-LIVE</span>
+            <span className="dateline-sep">&bull;</span>
+            <span className="dateline-item">
               <span className="lrs-dot" style={{ background: syncing ? '#b45309' : '#1c7a45' }} />
               {syncing ? 'लाइव सिंक...' : 'लाइव अपडेट (15s)'}
             </span>
@@ -141,9 +144,10 @@ export default function HomePage() {
             <input
               type="text"
               className="paper-search-input"
-              placeholder="गेम खोजें (Gali, Desawar...)"
+              placeholder="🔍 गेम खोजें (Gali, Desawar...)"
               value={searchQ}
               onChange={e => setSearchQ(e.target.value)}
+              aria-label="खोजें"
             />
           </div>
         </nav>
@@ -161,7 +165,7 @@ export default function HomePage() {
 
         {/* ── NOTICE ── */}
         <div className="notice">
-          हाँ भाई, सबसे पहले और सबसे तेज़ खबर यहीं आती है &mdash; <a href="#monthly-chart">मासिक चार्ट देखने के लिए नीचे स्क्रॉल करें</a>
+          हाँ भाई, सबसे पहले और सबसे तेज़ खबर यहीं आती है &mdash; <a href="#monthly-chart">मासिक चार्ट देखने के लिए नीचे स्क्रॉल करें ↓</a>
         </div>
 
         {/* ── BROADSHEET LEAD STORY ── */}
@@ -175,13 +179,15 @@ export default function HomePage() {
               <span className="big">
                 {!leadGame?.today_number || leadGame?.today_number === 'XX' || leadGame?.today_number === '--' ? <SpinnerIcon /> : leadGame?.today_number}
               </span>
-              <div className="meta">
-                <span>कल का नंबर</span>
-                <b>{leadGame?.yesterday_number || '—'}</b>
-              </div>
-              <div className="meta">
-                <span>रिजल्ट समय</span>
-                <b>{leadGame?.draw_time || '—'}</b>
+              <div className="meta-group">
+                <div className="meta">
+                  <span>कल का नंबर</span>
+                  <b>{leadGame?.yesterday_number || '—'}</b>
+                </div>
+                <div className="meta">
+                  <span>रिजल्ट समय</span>
+                  <b>{leadGame?.draw_time || '—'}</b>
+                </div>
               </div>
               <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-wa-paper" style={{ marginLeft: 'auto' }}>
                 💬 खाईवाल चैट
@@ -220,6 +226,7 @@ export default function HomePage() {
             <span className="note">{declaredCount}/{games.length} घोषित</span>
           </div>
 
+          <div className="scroll-hint">👈 बाएँ-दाएँ स्क्रॉल करें 👉</div>
           <div className="tbl-wrap">
             <table className="tbl" aria-label="Today Satta Results">
               <thead>
@@ -268,11 +275,12 @@ export default function HomePage() {
             <span className="note">ऐतिहासिक रिकॉर्ड</span>
           </div>
 
+          <div className="scroll-hint">👈 बाएँ-दाएँ स्क्रॉल करें 👉</div>
           <div className="tbl-wrap">
-            <table className="archive-ledger" aria-label="Monthly Archive Table">
+            <table className="archive-ledger sticky-col" aria-label="Monthly Archive Table">
               <thead>
                 <tr>
-                  <th style={{ width: 70 }}>तारीख (DAY)</th>
+                  <th style={{ width: 80 }}>तारीख (DAY)</th>
                   <th>DESAWAR (DSWR)</th>
                   <th>FARIDABAD (FRBD)</th>
                   <th>GAZIYABAD (GZBD)</th>
