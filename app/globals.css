@@ -98,7 +98,7 @@ a:hover {
   justify-content: center;
   gap: 8px;
   padding: 8px 18px;
-  background: var(--wa);
+  background: linear-gradient(135deg, #25d366, var(--wa-dark));
   border: 1px solid var(--wa-dark);
   color: #ffffff !important;
   font-family: var(--font-serif);
@@ -107,14 +107,21 @@ a:hover {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   text-decoration: none !important;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(28, 122, 69, 0.35);
 }
 
 .btn-wa-paper:hover {
   background: var(--wa-dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 18px rgba(28, 122, 69, 0.5);
+  text-decoration: none;
+}
+
+.btn-wa-paper:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .wa-paper-banner {
@@ -154,10 +161,10 @@ a:hover {
   align-items: center;
   gap: 6px;
   padding: 9px 16px;
-  background: var(--wa);
+  background: linear-gradient(135deg, #25d366, #126b38);
   color: #ffffff !important;
-  border: 2px solid var(--paper);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(37,211,102,0.4);
   font-family: var(--font-serif);
   font-size: 13px;
   font-weight: 800;
@@ -166,10 +173,23 @@ a:hover {
   text-decoration: none !important;
   cursor: pointer;
   border-radius: 4px;
+  animation: paperFabSlide 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both, paperWaPulse 2.5s ease-in-out infinite;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes paperFabSlide {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes paperWaPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 0 0 rgba(37,211,102,0); }
+  50%       { box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 0 6px rgba(37,211,102,0.2); }
 }
 
 .paper-fab-wa:hover {
-  background: #126b38;
+  transform: translateY(-2px) scale(1.04);
+  text-decoration: none;
 }
 
 .floating-bar {
@@ -186,8 +206,8 @@ a:hover {
   padding: 9px 16px;
   background: var(--ink);
   color: var(--paper);
-  border: 2px solid var(--paper);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   font-family: var(--font-serif);
   font-size: 13px;
   font-weight: 800;
@@ -195,10 +215,18 @@ a:hover {
   text-transform: uppercase;
   cursor: pointer;
   border-radius: 4px;
+  animation: paperFabSlide 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .paper-fab:hover {
   background: var(--red);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 16px rgba(168, 31, 18, 0.4);
+}
+
+.paper-fab:active {
+  transform: translateY(0) scale(0.97);
 }
 
 /* ── Breaking Result Flash Bar (.lrs) ───────────────────── */
@@ -354,14 +382,16 @@ a:hover {
   letter-spacing: 0.4px;
   text-decoration: none;
   text-transform: uppercase;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  border-bottom: 2px solid transparent;
 }
 
 .paper-nav-links a:hover,
 .paper-nav-links a.on {
   background: var(--ink);
   color: var(--paper);
+  border-bottom-color: var(--red);
 }
 
 .paper-search {
@@ -641,11 +671,12 @@ a:hover {
 
 .tbl tbody tr {
   border-bottom: 1px solid var(--hair);
-  transition: background 0.15s ease;
+  transition: background 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tbl tbody tr:hover {
   background: var(--paper-2);
+  box-shadow: inset 3px 0 0 var(--red);
 }
 
 .tbl td {
@@ -695,11 +726,19 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .link-cta:hover {
   background: var(--red);
   text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(168, 31, 18, 0.35);
+}
+
+.link-cta:active {
+  transform: translateY(0) scale(0.97);
 }
 
 /* ── Monthly & Annual Newspaper Archive Ledger ───────────── */
@@ -732,13 +771,16 @@ a:hover {
 }
 
 .archive-ledger td.has-num {
-  font-weight: 800;
+  font-weight: 900;
   color: var(--red);
+  background: rgba(168, 31, 18, 0.04);
 }
 
 .archive-ledger tr.today-row td {
   background: var(--paper-2);
   font-weight: 900;
+  border-left: 3px solid var(--red);
+  position: relative;
 }
 
 /* Sticky First Column for Annual Charts */
@@ -784,7 +826,7 @@ a:hover {
   font-weight: 700;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
@@ -792,6 +834,12 @@ a:hover {
 .archive-btn.active {
   background: var(--ink);
   color: var(--paper);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+.archive-btn:active {
+  transform: translateY(0) scale(0.97);
 }
 
 /* ── Scroll Hint for Touch ──────────────────────────────── */
