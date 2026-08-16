@@ -12,6 +12,7 @@ const REFRESH_MS = 15_000;
 
 export default function HomePage() {
   const [games, setGames]           = useState([]);
+  const [announcement, setAnnouncement] = useState(null);
   const [todayDate, setTodayDate]   = useState('');
   const [yesterdayDate, setYDate]   = useState('');
   const [searchQ, setSearchQ]       = useState('');
@@ -49,9 +50,12 @@ export default function HomePage() {
   useEffect(() => {
     loadResults();
     loadAnnouncement();
-    const id = setInterval(() => { loadResults(); loadAnnouncement(); }, REFRESH_MS);
+    const id = setInterval(() => {
+      loadResults();
+      loadAnnouncement();
+    }, REFRESH_MS);
     return () => clearInterval(id);
-  }, [loadResults]);
+  }, [loadResults, loadAnnouncement]);
 
   // Load monthly chart from backend API
   const loadChart = useCallback(async (month, year) => {
