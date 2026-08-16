@@ -966,3 +966,54 @@ a:hover {
     letter-spacing: 0.2px;
   }
 }
+
+
+/* ── Announcement / Advertisement Banner ── */
+.adv-banner {
+  max-width: 1280px;
+  margin: 14px auto 0;
+  padding: 0 16px;
+  width: 100%;
+}
+.adv-banner-inner {
+  background: linear-gradient(90deg, rgba(255, 45, 107, 0.18), rgba(0, 229, 255, 0.18), rgba(0, 255, 136, 0.18));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: bannerPulse 3s infinite ease-in-out;
+}
+@keyframes bannerPulse {
+  0%, 100% { border-color: rgba(255, 45, 107, 0.4); box-shadow: 0 0 16px rgba(255, 45, 107, 0.2); }
+  50% { border-color: rgba(0, 229, 255, 0.5); box-shadow: 0 0 28px rgba(0, 229, 255, 0.3); }
+}
+.adv-badge {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  background: #ff2d6b;
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.adv-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  word-break: break-word;
+  line-height: 1.45;
+}
+.adv-text a {
+  color: #00e5ff;
+  text-decoration: underline;
+  font-weight: 800;
+}
